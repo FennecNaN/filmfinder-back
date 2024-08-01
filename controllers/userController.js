@@ -21,12 +21,12 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
-  console.log('Login request received:', { email, password });
+
 
   const sql = 'SELECT * FROM users WHERE email = ?';
   try {
     const [results] = await db.query(sql, [email]);
-    console.log('Query executed. Results:', results);
+
 
     if (results.length === 0) {
       console.warn('Invalid email');
@@ -34,10 +34,10 @@ exports.login = async (req, res) => {
     }
 
     const user = results[0];
-    console.log('User found:', user);
+
 
     const isValidPassword = await bcrypt.compare(password, user.password);
-    console.log('Password is valid:', isValidPassword);
+
 
     if (!isValidPassword) {
       console.warn('Invalid password');
@@ -45,7 +45,6 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
-    console.log('User logged in successfully:', { id: user.id, name: user.name, email: user.email });
     res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (error) {
     console.error('Error processing login:', error.message);
