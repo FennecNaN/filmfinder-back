@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use('/api/movies', require('./routes/movieRoutes'));
-// app.use('/api/favorites', require('./routes/favoriteRoutes'));
+app.use('/api/favorites', require('./routes/favoriteRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 
 const PORT = process.env.PORT || 5000;

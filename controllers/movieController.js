@@ -1,21 +1,32 @@
-const db = require('../db');
+const pool = require('../db');
 
 exports.getAllMovies = async (req, res) => {
-    try {
-      const [movies] = await db.query('SELECT * FROM movies');
-      res.json(movies);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  };
+  const { page = 1, limit = 6 } = req.query;
+  const offset = (page - 1) * limit;
 
+  try {
+    const result = await pool.query('SELECT * FROM movies LIMIT $1 OFFSET $2', [limit, offset]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getMovieCount = async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM movies');
+    res.json({ count: parseInt(result.rows[0].count, 10) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 exports.searchMovies = async (req, res) => {
   const { query } = req.query;
 
   try {
-    const [movies] = await db.query('SELECT * FROM movies WHERE title LIKE ?', [`%${query}%`]);
-    res.json(movies);
+    const result = await pool.query('SELECT * FROM movies WHERE title LIKE $1', [`%${query}%`]);
+    res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -25,13 +36,13 @@ exports.getMoviePlatforms = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [platforms] = await db.query(`
+    const result = await pool.query(`
       SELECT platforms.* FROM platforms
       JOIN movie_platforms ON platforms.id = movie_platforms.platform_id
-      WHERE movie_platforms.movie_id = ?
+      WHERE movie_platforms.movie_id = $1
     `, [id]);
 
-    res.json(platforms);
+    res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
