@@ -25,7 +25,7 @@ exports.searchMovies = async (req, res) => {
   const { query } = req.query;
 
   try {
-    const result = await pool.query('SELECT * FROM movies WHERE title LIKE $1', [`%${query}%`]);
+    const result = await pool.query('SELECT * FROM movies WHERE title ILIKE $1', [`%${query}%`]);
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
